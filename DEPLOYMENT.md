@@ -3,7 +3,7 @@
 ## 📋 前置要求
 
 ### 本地开发
-- Node.js 18+
+- Node.js 20+
 - Python 3.11+
 - MySQL 8.0+
 
