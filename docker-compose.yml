@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: english_learning_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123456
+      MYSQL_DATABASE: english_learning
+      MYSQL_USER: english_user
+      MYSQL_PASSWORD: english_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - english_network
+
+  # Flask 后端
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: english_learning_backend
+    restart: always
+    environment:
+      DB_HOST: mysql
+      DB_USER: english_user
+      DB_PASSWORD: english_pass
+      DB_DATABASE: english_learning
+      AZURE_TTS_KEY: ${AZURE_TTS_KEY}
+      AZURE_TTS_REGION: ${AZURE_TTS_REGION}
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mysql
+    volumes:
+      - ./backend:/app
+      - audio_cache:/app/audio_cache
+    networks:
+      - english_network
+
+  # Nginx + 前端
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: english_learning_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - english_network
+
+volumes:
+  mysql_data:
+  audio_cache:
+
+networks:
+  english_network:
+    driver: bridge
