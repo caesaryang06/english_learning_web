@@ -3,9 +3,24 @@ CREATE DATABASE IF NOT EXISTS english_learning CHARACTER SET utf8mb4 COLLATE utf
 
 USE english_learning;
 
+-- 用户表
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    avatar VARCHAR(500),
+    token VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP NULL,
+    INDEX idx_username (username),
+    INDEX idx_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- 学习内容表
 CREATE TABLE IF NOT EXISTS learning_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
     type ENUM('word', 'phrase', 'sentence') NOT NULL,
     english TEXT NOT NULL,
     chinese TEXT NOT NULL,
@@ -14,7 +29,8 @@ CREATE TABLE IF NOT EXISTS learning_items (
     example_zh TEXT,
     audio_path VARCHAR(500),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_type (type),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_type (user_id, type),
     INDEX idx_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
