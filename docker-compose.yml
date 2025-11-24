@@ -31,6 +31,7 @@ services:
       DB_DATABASE: english_learning
       AZURE_TTS_KEY: ${AZURE_TTS_KEY}
       AZURE_TTS_REGION: ${AZURE_TTS_REGION}
+      CORS_ORIGINS: ${CORS_ORIGINS}
     ports:
       - "5000:5000"
     depends_on:
