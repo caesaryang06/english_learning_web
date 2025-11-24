@@ -37,6 +37,8 @@ services:
       AZURE_TTS_KEY: ${AZURE_TTS_KEY}
       AZURE_TTS_REGION: ${AZURE_TTS_REGION}
       CORS_ORIGINS: ${CORS_ORIGINS}
+      SECRET_KEY: ${SECRET_KEY}
+      DEBUG: ${DEBUG} 
     ports:
       - "5000:5000"
     depends_on:
