@@ -1,5 +1,5 @@
 <template>
-  <div class="home-view">
+  <div class="home-view" :style="backgroundStyle">
     <!-- 用户信息栏 -->
     <div class="user-bar">
       <div class="user-info">
@@ -116,6 +116,7 @@ import { getStatistics } from '@/api/items'
 import ImportDialog from './ImportDialog.vue'
 import SettingsDialog from './SettingsDialog.vue'
 import { ElMessage } from 'element-plus'
+import { useBackgroundStore } from '@/store/background'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -153,6 +154,9 @@ const loadStatistics = async () => {
 onMounted(() => {
   loadStatistics()
 })
+
+const backgroundStore = useBackgroundStore()
+const backgroundStyle = computed(() => backgroundStore.getStyle())
 </script>
 
 <style scoped>

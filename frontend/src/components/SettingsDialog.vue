@@ -29,7 +29,6 @@
           :step="0.1"
           :marks="{ 0.5: '0.5x', 1.0: '1.0x', 2.0: '2.0x' }"
         />
-        <div class="tip">范围: 0.5x (慢) ~ 2.0x (快)</div>
       </div>
 
       <!-- 重复间隔设置 -->
@@ -42,7 +41,17 @@
           :step="100"
           :marks="{ 500: '0.5s', 2500: '2.5s', 5000: '5.0s' }"
         />
-        <div class="tip">范围: 500ms (0.5秒) ~ 5000ms (5秒)</div>
+      </div>
+
+      <!-- 背景设置 -->
+      <div class="setting-item">
+        <el-button 
+          type="primary" 
+          @click="showBackgroundDialog = true"
+          style="width: 100%"
+        >
+          🎨 背景设置
+        </el-button>
       </div>
 
       <!-- 测试按钮 -->
@@ -56,8 +65,10 @@
     <template #footer>
       <el-button @click="handleClose">取消</el-button>
       <el-button type="primary" @click="saveSettings">保存</el-button>
+      
     </template>
   </el-dialog>
+  <BackgroundDialog v-model="showBackgroundDialog" />
 </template>
 
 <script setup>
@@ -65,6 +76,7 @@ import { ref, watch, reactive } from 'vue'
 import { useSettingsStore } from '@/store/settings'
 import { generateAudio } from '@/api/audio'
 import { ElMessage } from 'element-plus'
+import BackgroundDialog from './BackgroundDialog.vue'
 
 const props = defineProps({
   modelValue: Boolean
@@ -135,6 +147,7 @@ const saveSettings = () => {
 const handleClose = () => {
   visible.value = false
 }
+const showBackgroundDialog = ref(false)
 </script>
 
 <style scoped>
@@ -157,12 +170,6 @@ const handleClose = () => {
   float: right;
   color: #909399;
   font-size: 14px;
-}
-
-.tip {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #909399;
 }
 
 .test-section {

@@ -1,6 +1,6 @@
 <template>
-  <div class="test-view">
-    <!-- 顶部导航栏 - 紧凑 -->
+  <div class="test-view" :style="backgroundStyle">
+    <!-- 顶部导航栏 -->
     <div class="nav-bar">
       <el-button 
         class="back-btn" 
@@ -29,7 +29,7 @@
         {{ getTypeIcon(currentItem.type) }} {{ getTypeName(currentItem.type) }}
       </div>
 
-      <!-- 提示卡片 - 紧凑 -->
+      <!-- 提示卡片 -->
       <div class="hint-card">
         <div class="chinese">{{ currentItem.chinese }}</div>
         
@@ -46,23 +46,22 @@
         </el-button>
       </div>
 
-      <!-- 输入区域 -->
+      <!-- 输入区域 - 改为下划线 -->
       <div class="input-area">
-        <!-- 字符输入框模式（单词/短语） -->
-        <div v-if="currentItem.type !== 'sentence'" class="char-inputs">
-          <div v-for="(row, rowIndex) in inputRows" :key="rowIndex" class="input-row">
-            <input
-              v-for="(char, index) in row"
-              :key="index"
-              v-model="char.value"
-              :ref="(el) => setInputRef(el, char.globalIndex)"
-              @input="(e) => handleInput(e.target.value, char.globalIndex)"
-              @keydown="(e) => handleKeyDown(e, char.globalIndex)"
-              :disabled="char.isSpace"
-              :class="['char-input', { 'space-input': char.isSpace }]"
-              maxlength="1"
-              type="text"
-            />
+        <!-- 字符输入框模式（单词/短语） - 下划线样式 -->
+        <div v-if="currentItem.type !== 'sentence'" class="underline-inputs">
+          <div v-for="(word, wordIndex) in wordGroups" :key="wordIndex" class="word-group">
+            <div class="char-wrapper" v-for="(char, charIndex) in word" :key="charIndex">
+              <input
+                v-model="char.value"
+                :ref="(el) => setInputRef(el, char.globalIndex)"
+                @input="(e) => handleInput(e.target.value, char.globalIndex)"
+                @keydown="(e) => handleKeyDown(e, char.globalIndex)"
+                class="underline-input"
+                maxlength="1"
+                type="text"
+              />
+            </div>
           </div>
         </div>
 
@@ -76,7 +75,7 @@
         ></textarea>
       </div>
 
-      <!-- 按钮组 - 固定底部 -->
+      <!-- 按钮组 -->
       <div class="button-group">
         <el-button class="action-btn clear-btn" @click="clearInput">
           清空
@@ -87,7 +86,7 @@
       </div>
     </div>
 
-    <!-- 结果对话框 -->
+    <!-- 结果对话框保持不变 -->
     <el-dialog v-model="showResult" title="测试结果" width="400px" :show-close="false">
       <div class="result-content">
         <div class="result-icon">{{ accuracy >= 80 ? '🎉' : '💪' }}</div>
@@ -129,10 +128,12 @@ import { ArrowLeft, VideoPlay } from '@element-plus/icons-vue'
 import { getItemsForTest } from '@/api/items'
 import { generateAudio } from '@/api/audio'
 import { useSettingsStore } from '@/store/settings'
+import { useBackgroundStore } from '@/store/background'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 const settingsStore = useSettingsStore()
+const backgroundStore = useBackgroundStore()
 
 const items = ref([])
 const currentIndex = ref(0)
@@ -146,13 +147,30 @@ const showResult = ref(false)
 
 const currentItem = computed(() => items.value[currentIndex.value] || null)
 
-const inputRows = computed(() => {
-  const charsPerRow = 15
-  const rows = []
-  for (let i = 0; i < inputChars.value.length; i += charsPerRow) {
-    rows.push(inputChars.value.slice(i, i + charsPerRow))
+// 背景样式
+const backgroundStyle = computed(() => backgroundStore.getStyle())
+
+// 将字符按单词分组
+const wordGroups = computed(() => {
+  const words = []
+  let currentWord = []
+  
+  for (const char of inputChars.value) {
+    if (char.isSpace) {
+      if (currentWord.length > 0) {
+        words.push(currentWord)
+        currentWord = []
+      }
+    } else {
+      currentWord.push(char)
+    }
   }
-  return rows
+  
+  if (currentWord.length > 0) {
+    words.push(currentWord)
+  }
+  
+  return words
 })
 
 const accuracy = computed(() => {
@@ -350,12 +368,14 @@ onMounted(() => {
 .test-view {
   height: 100vh;
   background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  background-size: cover;
+  background-position: center;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* 顶部导航 - 紧凑 */
+/* 顶部导航保持不变 */
 .nav-bar {
   position: relative;
   padding: 15px 30px;
@@ -414,7 +434,7 @@ onMounted(() => {
   transition: width 0.3s ease;
 }
 
-/* 内容区域 - 垂直居中 */
+/* 内容区域 */
 .content-wrapper {
   flex: 1;
   display: flex;
@@ -426,7 +446,6 @@ onMounted(() => {
   overflow: hidden;
 }
 
-/* 类型标签 */
 .type-badge {
   padding: 6px 18px;
   border-radius: 20px;
@@ -449,7 +468,6 @@ onMounted(() => {
   background: rgba(245, 158, 11, 0.3);
 }
 
-/* 提示卡片 - 紧凑 */
 .hint-card {
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px);
@@ -493,49 +511,52 @@ onMounted(() => {
   transform: scale(1.1);
 }
 
-/* 输入区域 */
+/* 下划线输入样式 */
 .input-area {
   width: 100%;
-  max-width: 700px;
+  max-width: 800px;
   display: flex;
   justify-content: center;
 }
 
-.char-inputs {
+.underline-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 25px;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.word-group {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.char-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 8px;
   align-items: center;
 }
 
-.input-row {
-  display: flex;
-  gap: 6px;
-}
-
-.char-input {
-  width: 42px;
-  height: 42px;
+.underline-input {
+  width: 35px;
+  height: 40px;
   text-align: center;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: bold;
   text-transform: uppercase;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-bottom: 3px solid rgba(255, 255, 255, 0.8);
+  background: transparent;
+  color: white;
   outline: none;
   transition: all 0.2s ease;
 }
 
-.char-input:focus {
-  border-color: #11998e;
-  box-shadow: 0 0 0 3px rgba(17, 153, 142, 0.2);
-}
-
-.space-input {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.3);
-  cursor: not-allowed;
+.underline-input:focus {
+  border-bottom-color: white;
+  box-shadow: 0 3px 0 0 rgba(255, 255, 255, 0.3);
 }
 
 .sentence-input {
@@ -591,7 +612,7 @@ onMounted(() => {
   box-shadow: 0 8px 25px rgba(17, 153, 142, 0.4);
 }
 
-/* 结果对话框 */
+/* 结果对话框样式保持不变 */
 .result-content {
   text-align: center;
   padding: 20px;
@@ -648,8 +669,18 @@ onMounted(() => {
   margin: 15px 0 0 0;
 }
 
-/* 响应式 */
+/* 响应式 - 移动端每个单词一行 */
 @media (max-width: 768px) {
+  .underline-inputs {
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+  }
+  
+  .word-group {
+    justify-content: center;
+  }
+  
   .hint-card {
     padding: 25px 20px;
   }
@@ -658,10 +689,10 @@ onMounted(() => {
     font-size: 24px;
   }
   
-  .char-input {
-    width: 38px;
-    height: 38px;
-    font-size: 18px;
+  .underline-input {
+    width: 32px;
+    height: 35px;
+    font-size: 20px;
   }
 }
 
@@ -675,13 +706,14 @@ onMounted(() => {
     font-size: 24px;
   }
   
-  .char-input {
-    width: 38px;
-    height: 38px;
+  .underline-input {
+    width: 30px;
+    height: 35px;
+    font-size: 20px;
   }
   
-  .input-row {
-    gap: 5px;
+  .word-group {
+    gap: 6px;
   }
 }
 </style>

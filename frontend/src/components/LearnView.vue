@@ -1,5 +1,5 @@
 <template>
-  <div class="learn-view">
+  <div class="learn-view" :style="backgroundStyle">
     <!-- 顶部导航栏 - 更紧凑 -->
     <div class="nav-bar">
       <el-button 
@@ -108,6 +108,7 @@ import { getItemsForLearning } from '@/api/items'
 import { generateAudio } from '@/api/audio'
 import { useSettingsStore } from '@/store/settings'
 import { ElMessage } from 'element-plus'
+import { useBackgroundStore } from '@/store/background'
 
 const router = useRouter()
 const settingsStore = useSettingsStore()
@@ -238,6 +239,9 @@ onUnmounted(() => {
   stopAudio()
   window.removeEventListener('keydown', handleKeyPress)
 })
+
+const backgroundStore = useBackgroundStore()
+const backgroundStyle = computed(() => backgroundStore.getStyle())
 </script>
 
 <style scoped>
