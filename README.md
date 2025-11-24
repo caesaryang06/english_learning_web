@@ -35,7 +35,7 @@ cp .env.example .env
 
 #### 3. 启动服务
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 #### 4. 访问应用
@@ -46,19 +46,19 @@ docker-compose up -d
 #### 5. 查看日志
 ```bash
 # 查看所有服务日志
-docker-compose logs -f
+docker compose logs -f
 
 # 查看特定服务日志
-docker-compose logs -f backend
-docker-compose logs -f frontend
+docker compose logs -f backend
+docker compose logs -f frontend
 ```
 
 #### 6. 停止服务
 ```bash
-docker-compose down
+docker compose down
 
 # 删除数据卷（谨慎操作）
-docker-compose down -v
+docker compose down -v
 ```
 
 ---
