@@ -1,5 +1,5 @@
 <template>
-  <div class="login-view" :style="backgroundStyle">
+  <div class="login-view">
     <div class="login-container">
       <div class="login-card">
         <div class="logo-section">
@@ -125,7 +125,6 @@ import { useRouter } from 'vue-router'
 import { login, register } from '@/api/auth'
 import { useUserStore } from '@/store/user'
 import { ElMessage } from 'element-plus'
-import { useBackgroundStore } from '@/store/background'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -243,9 +242,6 @@ const handleRegister = async () => {
     }
   })
 }
-
-const backgroundStore = useBackgroundStore()
-const backgroundStyle = computed(() => backgroundStore.getStyle())
 </script>
 
 <style scoped>
